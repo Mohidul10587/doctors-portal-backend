@@ -30,22 +30,26 @@ function verifyJWT(req, res, next) {
     return res.status(401).send({ message: "UnAuthorized access" });
   }
   const token = authHeader.split(" ")[1];
-  jwt.verify(token, process.env.ACCESS_TOKEN_VAR, function (err, decoded) {
-    if (err) {
-      return res.status(403).send({ massage: "forbidden" });
+  jwt.verify(
+    token,
+    "3dda928b2799c9860b2d3a742a325501a1910afeb5a0484fe50742fc5e30859f95de8e852ba82efc071b3d849a484f1d9ba8545121817e1898a19e061d865053",
+    function (err, decoded) {
+      if (err) {
+        return res.status(403).send({ massage: "forbidden" });
+      }
+      req.decoded = decoded;
+      next();
     }
-    req.decoded = decoded;
-    next();
-  });
+  );
 }
 
-const options = {
-  auth: {
-    api_key: process.env.EMAIL_SENDER_KEY,
-  },
-};
+// const options = {
+//   auth: {
+//     api_key: process.env.EMAIL_SENDER_KEY,
+//   },
+// };
 
-const clientEmail = nodemailer.createTransport(sgTransport(options));
+// const clientEmail = nodemailer.createTransport(sgTransport(options));
 
 // let transporter = nodemailer.createTransport({
 //     host: 'smtp.sendgrid.net',
@@ -73,24 +77,24 @@ const clientEmail = nodemailer.createTransport(sgTransport(options));
 //   }
 // });
 
-function emailSendHandler(booking) {
-  const { patient, patientName, treatment, date, slot } = booking;
-  const email = {
-    from: process.env.EMAIL_SENDER,
-    to: patient,
-    subject: `Your appointment ${treatment}`,
-    text: `Your appointment ${treatment}`,
-    html: ` <b>This is a email</b>`,
-  };
+// function emailSendHandler(booking) {
+//   const { patient, patientName, treatment, date, slot } = booking;
+//   const email = {
+//     from: process.env.EMAIL_SENDER,
+//     to: patient,
+//     subject: `Your appointment ${treatment}`,
+//     text: `Your appointment ${treatment}`,
+//     html: ` <b>This is a email</b>`,
+//   };
 
-  clientEmail.sendMail(email, function (error, info) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log("Email sent: ", info);
-    }
-  });
-}
+//   clientEmail.sendMail(email, function (error, info) {
+//     if (error) {
+//       console.log(error);
+//     } else {
+//       console.log("Email sent: ", info);
+//     }
+//   });
+// }
 
 app.get("/", async (req, res) => {
   res.send("This is first deployment in heroku");
@@ -210,7 +214,7 @@ async function run() {
       }
       const result = await bookingCollection.insertOne(booking);
 
-      emailSendHandler(booking);
+      // emailSendHandler(booking);
       console.log(booking.patient);
       return res.send({ success: true, result });
     });
